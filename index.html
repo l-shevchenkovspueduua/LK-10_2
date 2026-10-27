@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Квест-практикум — Тема 10. Кібергігієна в документообігу</title>
+    <style>
+        :root {
+            --bg-page: #F7F4EF;
+            --bg-card: #FFFFFF;
+            --bg-soft: #EFECE6;
+            --text-main: #2C2623;
+            --text-muted: #5C554E;
+            --accent-olive: #4A5D4E;
+            --accent-terracotta: #C86D51;
+            --accent-amber: #D99B52;
+            --border-color: #DCD5C9;
+            --success-bg: #E6F3EA;
+            --success-border: #84B893;
+            --success-text: #255834;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            line-height: 1.55;
+            padding: 20px 15px 40px;
+        }
+
+        .top-nav {
+            max-width: 1020px;
+            margin: 0 auto 20px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stage-pill {
+            padding: 9px 15px;
+            border-radius: 999px;
+            background: var(--bg-soft);
+            border: 1px solid var(--border-color);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .stage-pill.active {
+            background: var(--accent-olive);
+            color: #FFFFFF;
+            border-color: var(--accent-olive);
+        }
+
+        .stage-pill.done {
+            background: var(--success-bg);
+            color: var(--success-text);
+            border-color: var(--success-border);
+        }
+
+        .quest-wrapper {
+            max-width: 1020px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(44, 38, 35, 0.08);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .quest-page {
+            display: none;
+        }
+
+        .quest-page.active {
+            display: flex;
+            flex-direction: row;
+            min-height: 580px;
+        }
+
+        @media (max-width: 850px) {
+            .quest-page.active {
+                flex-direction: column;
+            }
+            .visual-pane {
+                width: 100% !important;
+                border-right: none !important;
+                border-bottom: 1px solid var(--border-color);
+            }
+            .content-pane {
+                width: 100% !important;
+            }
+        }
+
+        .visual-pane {
+            width: 36%;
+            background: linear-gradient(155deg, #EFECE6 0%, #E2DDD2 100%);
+            padding: 30px 22px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .visual-card {
+            width: 100%;
+            max-width: 280px;
+            background: #FFFFFF;
+            border-radius: 18px;
+            padding: 24px 18px;
+            box-shadow: 0 8px 22px rgba(74, 93, 78, 0.1);
+            text-align: center;
+        }
+
+        .visual-caption {
+            margin-top: 14px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent-olive);
+        }
+
+        .content-pane {
+            width: 64%;
+            padding: 32px 34px;
+            background: #FFFFFF;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .stage-badge {
+            display: inline-block;
+            background: var(--bg-soft);
+            color: var(--accent-olive);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 999px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 22px;
+            color: var(--text-main);
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .theory-text {
+            font-size: 14.5px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .callout-box {
+            background: var(--bg-soft);
+            border-left: 4px solid var(--accent-olive);
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            margin-bottom: 16px;
+            color: var(--text-main);
+        }
+
+        .reg-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+            background: var(--bg-page);
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .reg-grid .full-row {
+            grid-column: 1 / -1;
+        }
+
+        input[type="text"], input[type="email"], textarea {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-family: inherit;
+            background: #FFFFFF;
+            color: var(--text-main);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 56px;
+        }
+
+        .q-block {
+            margin-bottom: 14px;
+            background: var(--bg-page);
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .q-title {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .option-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            background: #FFFFFF;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 6px;
+            font-size: 13.5px;
+            cursor: pointer;
+        }
+
+        .option-label:hover {
+            border-color: var(--accent-terracotta);
+        }
+
+        .option-label input {
+            margin-top: 3px;
+            accent-color: var(--accent-olive);
+        }
+
+        .action-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .btn {
+            background: var(--accent-olive);
+            color: #FFFFFF;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-terracotta {
+            background: var(--accent-terracotta);
+        }
+
+        .btn-amber {
+            background: var(--accent-amber);
+        }
+
+        .btn-soft {
+            background: var(--bg-soft);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .status-msg {
+            font-size: 13.5px;
+            font-weight: 700;
+        }
+
+        details.hint-box {
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--accent-olive);
+            cursor: pointer;
+        }
+
+        details.hint-box p {
+            margin-top: 6px;
+            padding: 10px 12px;
+            background: var(--bg-page);
+            border-radius: 8px;
+            color: var(--text-muted);
+        }
+
+        .flag-banner {
+            display: none;
+            margin-top: 12px;
+            background: var(--success-bg);
+            border: 1px solid var(--success-border);
+            color: var(--success-text);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 700;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .flag-code {
+            font-family: monospace;
+            background: #FFFFFF;
+            padding: 3px 8px;
+            border-radius: 6px;
+            border: 1px solid var(--success-border);
+        }
+
+        .nav-footer {
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rules-builder {
+            margin-top: 16px;
+            background: var(--bg-page);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .rule-item {
+            margin-bottom: 10px;
+        }
+
+        .rule-item label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent-olive);
+            margin-bottom: 4px;
+        }
+
+        #passportSection {
+            display: none;
+            max-width: 1020px;
+            margin: 24px auto 0;
+            background: #FFFFFF;
+            border-radius: 18px;
+            padding: 32px;
+            border: 2px solid var(--accent-olive);
+            box-shadow: 0 10px 30px rgba(44, 38, 35, 0.1);
+        }
+
+        .passport-header {
+            background: var(--accent-olive);
+            color: #FFFFFF;
+            padding: 18px 22px;
+            border-radius: 12px;
+            margin-bottom: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .flags-grid {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 10px 0 16px;
+        }
+
+        .flag-chip {
+            background: var(--success-bg);
+            color: var(--success-text);
+            border: 1px solid var(--success-border);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12.5px;
+            font-weight: 700;
+        }
+
+        @media print {
+            body { background: #FFFFFF; padding: 0; }
+            .top-nav, .quest-wrapper, .no-print { display: none !important; }
+            #passportSection {
+                display: block !important;
+                border: none;
+                box-shadow: none;
+                padding: 0;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <div class="stage-pill active" id="pill1" onclick="showStage(1)">Етап 1 • Пошта і фішинг</div>
+        <div class="stage-pill" id="pill2" onclick="showStage(2)">Етап 2 • Хмарні доступи</div>
+        <div class="stage-pill" id="pill3" onclick="showStage(3)">Етап 3 • Таблиці та ПК</div>
+        <div class="stage-pill" id="pill4" onclick="showStage(4)">Етап 4 • КЕП і Дія.Підпис</div>
+        <div class="stage-pill" id="pill5" onclick="showStage(5)">Етап 5 • Кіберінцидент і Zoom</div>
+        <div class="stage-pill" id="pill6" onclick="showStage(6)">Етап 6 • 5 правил і Паспорт</div>
+    </div>
+
+    <div class="quest-wrapper">
+
+        <!-- СТОРІНКА 1 -->
+        <div class="quest-page active" id="page1">
+            <div class="visual-pane">
+                <div class="visual-card">
+                    <svg viewBox="0 0 240 200" width="100%" height="180">
+                        <rect x="25" y="30" width="190" height="125" rx="14" fill="#F7F4EF" stroke="#4A5D4E" stroke-width="3"/>
+                        <path d="M30 40 L120 105 L210 40" fill="none" stroke="#C86D51" stroke-width="4"/>
+                        <circle cx="175" cy="135" r="32" fill="#4A5D4E"/>
+                        <path d="M162 135 L171 145 L190 124" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+                    </svg>
+                    <div class="visual-caption">Етап 1. Анатомія фішингу та правило 10 секунд</div>
+                </div>
+            </div>
+
+            <div class="content-pane">
+                <div>
+                    <span class="stage-badge">Етап 1 з 6 • Комунікація та пошта</span>
+                    <h2>Як розпізнати пастку у вхідному листі за 10 секунд?</h2>
+
+                    <div class="reg-grid">
+                        <div class="full-row">
+                            <input type="text" id="userName" placeholder="Ваше Прізвище, Ім’я, По батькові (обов’язково для паспорта)">
+                        </div>
+                        <div>
+                            <input type="text" id="userSchool" placeholder="Заклад освіти та посада">
+                        </div>
+                        <div>
+                            <input type="email" id="userEmail" placeholder="Ваша електронна пошта">
+                        </div>
+                    </div>
+
+                    <p class="theory-text">
+                        75% успішних кібератак на освітні заклади починаються з відкритого листа втомленим педагогом близько 14.00. Зловмисники тиснуть через ефект авторитету, штучний поспіх та очікування допомоги.
+                    </p>
+                    <div class="callout-box">
+                        <strong>Алгоритм безпеки</strong> — державні органи пишуть виключно з доменів <strong>.gov.ua</strong>, а заклади освіти — з <strong>.edu.ua</strong>. Запаролені архіви (.zip, .exe) обходять антивірус пошти, а перевірити будь-який файл чи посилання без відкриття можна за 5 секунд через <strong>virustotal.com</strong> (70 антивірусних баз).
+                    </div>
+
+                    <div class="q-block">
+                        <div class="q-title">1. У п’ятницю ввечері надійшов лист з адреси lukashiv@ukr.net про «нову програму для електронного журналу» з файлом v_5.1.9.zip (Пароль — mongov). Що видає пастку?</div>
+                        <label class="option-label"><input type="radio" name="s1q1" value="1"> Безкоштовний домен @ukr.net замість державного .gov.ua та запаролений архів із програмою</label>
+                        <label class="option-label"><input type="radio" name="s1q1" value="0"> Відсутність мокрої печатки у заголовку листа</label>
+                        <label class="option-label"><input type="radio" name="s1q1" value="0"> Те, що лист надійшов у п’ятницю ввечері</label>
+                    </div>
+
+                    <div class="q-block">
+                        <div class="q-title">2. Як перевірити підозрілий файл або посилання за 5 секунд, не відкриваючи його на своєму комп’ютері?</div>
+                        <label class="option-label"><input type="radio" name="s1q2" value="0"> Переслати файл колезі у Viber і спитати, чи відкривається</label>
+                        <label class="option-label"><input type="radio" name="s1q2" value="1"> Перетягнути файл або вставити лінк у безкоштовний онлайн-сканер VirusTotal (virustotal.com)</label>
+                        <label class="option-label"><input type="radio" name="s1q2" value="0"> Відкрити архів на смартфоні</label>
+                    </div>
+
+                    <div class="action-row">
+                        <button type="button" class="btn" onclick="checkStage(1)">Перевірити</button>
+                        <span class="status-msg" id="msg1"></span>
+                    </div>
+
+                    <details class="hint-box">
+                        <summary>Підказка — де розібратися?</summary>
+                        <p>Згадайте: офіційні установи ніколи не пишуть із пошти @ukr.net, а VirusTotal перевіряє файли без їх запуску на вашому пристрої.</p>
+                    </details>
+
+                    <div class="flag-banner" id="flagBox1">
+                        <span>Ваш прапорець: <span class="flag-code">FLAG{VIRUSTOTAL_10S}</span></span>
+                        <span>Етап пройдено!</span>
+                    </div>
+                </div>
+
+                <div class="nav-footer">
+                    <span>Сторінка 1 із 6</span>
+                    <button type="button" class="btn btn-terracotta" onclick="goNext(1)">До етапу 2 →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- СТОРІНКА 2 -->
+        <div class="quest-page" id="page2">
+            <div class="visual-pane">
+                <div class="visual-card">
+                    <svg viewBox="0 0 240 200" width="100%" height="180">
+                        <rect x="40" y="35" width="160" height="115" rx="16" fill="#F7F4EF" stroke="#4A5D4E" stroke-width="3"/>
+                        <rect x="92" y="75" width="56" height="46" rx="8" fill="#C86D51"/>
+                        <path d="M106 75 V60 C106 48 134 48 134 60 V75" fill="none" stroke="#4A5D4E" stroke-width="4"/>
+                        <circle cx="120" cy="98" r="6" fill="#FFFFFF"/>
+                    </svg>
+                    <div class="visual-caption">Етап 2. Правило трьох рівнів доступу в хмарі</div>
+                </div>
+            </div>
+
+            <div class="content-pane">
+                <div>
+                    <span class="stage-badge">Етап 2 з 6 • Хмарні сховища та персональні дані</span>
+                    <h2>Чому доступ «Усі, хто має посилання» — найдорожча помилка?</h2>
+
+                    <p class="theory-text">
+                        Публічні посилання на списки учнів, телефони батьків та діагнози порушують Закон України «Про захист персональних даних». Вони індексуються в пошукових системах, вразливі до видалення за 2 секунди, а в історії змін показують лише «Невідомого хом’яка» чи «Анонімного борсука».
+                    </p>
+                    <div class="callout-box">
+                        <strong>Правило трьох рівнів доступу</strong> — <em>Перегляд (Читач)</em> для розкладів і пам’яток учням та батькам; <em>Коментування</em> для методичної роботи з колегами; <em>Редагування</em> — ТІЛЬКИ персоніфіковано за конкретними email-адресами.
+                    </div>
+
+                    <div class="q-block">
+                        <div class="q-title">1. Вчителька створила таблицю з оцінками, характеристиками та контактами батьків і скинула посилання у Viber-чат з налаштуванням «Усі, хто має посилання, можуть переглядати». Яке правило порушено?</div>
+                        <label class="option-label"><input type="radio" name="s2q1" value="1"> Персональні дані учнів і телефони батьків опинилися у відкритому доступі для будь-кого в інтернеті</label>
+                        <label class="option-label"><input type="radio" name="s2q1" value="0"> Посилання у Viber не відкриваються без підписки</label>
+                        <label class="option-label"><input type="radio" name="s2q1" value="0"> Батьки не зможуть змінити шрифт таблиці</label>
+                    </div>
+
+                    <div class="q-block">
+                        <div class="q-title">2. Як безпечно зібрати дані про учасників Всеукраїнських олімпіад від 20 учителів в одній Google Таблиці?</div>
+                        <label class="option-label"><input type="radio" name="s2q2" value="0"> Відкрити редагування всім в інтернеті за посиланням і кинути в загальний чат</label>
+                        <label class="option-label"><input type="radio" name="s2q2" value="1"> Надати адресний доступ лише на корпоративні пошти колег (@school.edu.ua) із заблокованою шапкою таблиці</label>
+                        <label class="option-label"><input type="radio" name="s2q2" value="0"> Зібрати фотографії паперових списків у соцмережах</label>
+                    </div>
+
+                    <div class="action-row">
+                        <button type="button" class="btn" onclick="checkStage(2)">Перевірити</button>
+                        <span class="status-msg" id="msg2"></span>
+                    </div>
+
+                    <details class="hint-box">
+                        <summary>Підказка — де розібратися?</summary>
+                        <p>Доступ до документів із персональними даними учнів надається виключно за конкретними email-адресами без публічних лінків.</p>
+                    </details>
+
+                    <div class="flag-banner" id="flagBox2">
+                        <span>Ваш прапорець: <span class="flag-code">FLAG{CLOUD_PRIVACY}</span></span>
+                        <span>Етап пройдено!</span>
+                    </div>
+                </div>
+
+                <div class="nav-footer">
+                    <button type="button" class="btn btn-soft" onclick="showStage(1)">← Назад</button>
+                    <button type="button" class="btn btn-terracotta" onclick="goNext(2)">До етапу 3 →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- СТОРІНКА 3 -->
+        <div class="quest-page" id="page3">
+            <div class="visual-pane">
+                <div class="visual-card">
+                    <svg viewBox="0 0 240 200" width="100%" height="180">
+                        <rect x="25" y="25" width="190" height="110" rx="10" fill="#F7F4EF" stroke="#4A5D4E" stroke-width="3"/>
+                        <rect x="25" y="25" width="190" height="28" rx="8" fill="#4A5D4E"/>
+                        <line x1="90" y1="53" x2="90" y2="135" stroke="#DCD5C9" stroke-width="2"/>
+                        <line x1="25" y1="90" x2="215" y2="90" stroke="#DCD5C9" stroke-width="2"/>
+                        <rect x="45" y="148" width="150" height="32" rx="8" fill="#2C2623"/>
+                        <text x="120" y="169" text-anchor="middle" fill="#D99B52" font-size="13" font-family="monospace" font-weight="700">Ctrl + Shift + N</text>
+                    </svg>
+                    <div class="visual-caption">Етап 3. Захист таблиць та режим Інкогніто</div>
+                </div>
+            </div>
+
+            <div class="content-pane">
+                <div>
+                    <span class="stage-badge">Етап 3 з 6 • Спільні таблиці та пристрої</span>
+                    <h2>Як захистити спільну таблицю і не залишити пошту в учительській?</h2>
+
+                    <p class="theory-text">
+                        У спільних таблицях колеги можуть випадково стерти формули або чужі рядки. А закриття браузера червоним хрестиком на спільному ноутбуці у вчительській НЕ виходить із вашої пошти.
+                    </p>
+                    <div class="callout-box">
+                        <strong>Технічний захист</strong> — блокуйте шапку через <em>«Захистити діапазон»</em>, знімайте прапорець дозволу на копіювання/завантаження для чутливих даних і відновлюйте стерте через <em>«Файл → Історія версій»</em>. На чужому ПК працюйте в режимі Інкогніто (<strong>Ctrl + Shift + N</strong>).
+                    </div>
+
+                    <div class="q-block">
+                        <div class="q-title">1. Що робити, якщо під час заповнення звіту колега випадково видалив половину спільної Google Таблиці?</div>
+                        <label class="option-label"><input type="radio" name="s3q1" value="1"> Відкрити «Файл → Історія версій» і відновити попередній стан документа за один клік</label>
+                        <label class="option-label"><input type="radio" name="s3q1" value="0"> Переписувати всі дані заново з паперових чернеток</label>
+                        <label class="option-label"><input type="radio" name="s3q1" value="0"> Видалити таблицю і створити нову</label>
+                    </div>
+
+                    <div class="q-block">
+                        <div class="q-title">2. Ви забули вийти зі своєї пошти на спільному комп’ютері в аудиторії і згадали про це вдома. Як закрити сесію за 3 секунди?</div>
+                        <label class="option-label"><input type="radio" name="s3q2" value="0"> Чекати до понеділка і сподіватися, що ніхто не відкриє браузер</label>
+                        <label class="option-label"><input type="radio" name="s3q2" value="1"> Зайти зі смартфона у розділ Google-акаунта «Безпека → Ваші пристрої» і примусово завершити сесію</label>
+                        <label class="option-label"><input type="radio" name="s3q2" value="0"> Вимкнути Wi-Fi у себе вдома</label>
+                    </div>
+
+                    <div class="action-row">
+                        <button type="button" class="btn" onclick="checkStage(3)">Перевірити</button>
+                        <span class="status-msg" id="msg3"></span>
+                    </div>
+
+                    <details class="hint-box">
+                        <summary>Підказка — де розібратися?</summary>
+                        <p>Історія версій зберігає кожну зміну у хмарі, а розділ «Ваші пристрої» у смартфоні дозволяє миттєво вийти з будь-якого шкільного ПК.</p>
+                    </details>
+
+                    <div class="flag-banner" id="flagBox3">
+                        <span>Ваш прапорець: <span class="flag-code">FLAG{INCOGNITO_SAFE}</span></span>
+                        <span>Етап пройдено!</span>
+                    </div>
+                </div>
+
+                <div class="nav-footer">
+                    <button type="button" class="btn btn-soft" onclick="showStage(2)">← Назад</button>
+                    <button type="button" class="btn btn-terracotta" onclick="goNext(3)">До етапу 4 →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- СТОРІНКА 4 -->
+        <div class="quest-page" id="page4">
+            <div class="visual-pane">
+                <div class="visual-card">
+                    <svg viewBox="0 0 240 200" width="100%" height="180">
+                        <rect x="65" y="15" width="110" height="170" rx="16" fill="#F7F4EF" stroke="#4A5D4E" stroke-width="3"/>
+                        <circle cx="120" cy="88" r="32" fill="#EFECE6" stroke="#C86D51" stroke-width="3"/>
+                        <path d="M108 88 L116 97 L134 78" fill="none" stroke="#4A5D4E" stroke-width="4" stroke-linecap="round"/>
+                        <rect x="82" y="142" width="76" height="22" rx="6" fill="#4A5D4E"/>
+                        <text x="120" y="157" text-anchor="middle" fill="#FFFFFF" font-size="10" font-weight="700">czo.gov.ua</text>
+                    </svg>
+                    <div class="visual-caption">Етап 4. Особиста недоторканність КЕП і Дія.Підпис</div>
+                </div>
+            </div>
+
+            <div class="content-pane">
+                <div>
+                    <span class="stage-badge">Етап 4 з 6 • Електронний документообіг і КЕП</span>
+                    <h2>Чому флешка з КЕП у чужих руках — це юридична пастка?</h2>
+
+                    <p class="theory-text">
+                        За Законом України «Про електронну ідентифікацію...», кваліфікований електронний підпис (КЕП) прирівнюється до власноручного підпису. Передача флешки (.dat / .zs2) і пароля з проханням «Підпишіть за мене, бо я не встигаю на урок» — це повна компрометація ключа.
+                    </p>
+                    <div class="callout-box">
+                        <strong>Безпечні альтернативи</strong> — власник ключа несе одноосібну фінансову та кримінальну відповідальність. Переходьте на хмарний біометричний <strong>Дія.Підпис</strong> та використовуйте послідовне підписання кількома особами на порталі <strong>czo.gov.ua</strong> без передачі ключів.
+                    </div>
+
+                    <div class="q-block">
+                        <div class="q-title">1. Чому хмарний «Дія.Підпис» значно безпечніший за файловий ключ на звичайній флешці?</div>
+                        <label class="option-label"><input type="radio" name="s4q1" value="1"> Ключ не існує у вигляді файла на флешці, а підписання підтверджується скануванням обличчя (біометрією) власника</label>
+                        <label class="option-label"><input type="radio" name="s4q1" value="0"> Його можна переслати у Viber секретарю без пароля</label>
+                        <label class="option-label"><input type="radio" name="s4q1" value="0"> Документи з ним не перевіряються казначейством</label>
+                    </div>
+
+                    <div class="q-block">
+                        <div class="q-title">2. Як правильно накласти підписи директора і заступника на один документ без пересилання ключів?</div>
+                        <label class="option-label"><input type="radio" name="s4q2" value="0"> Залишити обидві флешки з паролями на столі у приймальні</label>
+                        <label class="option-label"><input type="radio" name="s4q2" value="1"> Виконати послідовне підписання на порталі czo.gov.ua — перший підписує файл і надсилає вже підписаний контейнер колезі для накладання другого підпису зверху</label>
+                        <label class="option-label"><input type="radio" name="s4q2" value="0"> Вписати обидва прізвища у назву файла</label>
+                    </div>
+
+                    <div class="action-row">
+                        <button type="button" class="btn" onclick="checkStage(4)">Перевірити</button>
+                        <span class="status-msg" id="msg4"></span>
+                    </div>
+
+                    <details class="hint-box">
+                        <summary>Підказка — де розібратися?</summary>
+                        <p>На державному порталі czo.gov.ua можна як перевірити чинність підписів, так і послідовно накласти кілька підписів різних посадових осіб без передачі флешок.</p>
+                    </details>
+
+                    <div class="flag-banner" id="flagBox4">
+                        <span>Ваш прапорець: <span class="flag-code">FLAG{DIIA_SIGNATURE}</span></span>
+                        <span>Етап пройдено!</span>
+                    </div>
+                </div>
+
+                <div class="nav-footer">
+                    <button type="button" class="btn btn-soft" onclick="showStage(3)">← Назад</button>
+                    <button type="button" class="btn btn-terracotta" onclick="goNext(4)">До етапу 5 →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- СТОРІНКА 5 -->
+        <div class="quest-page" id="page5">
+            <div class="visual-pane">
+                <div class="visual-card">
+                    <svg viewBox="0 0 240 200" width="100%" height="180">
+                        <polygon points="120,20 195,50 195,112 120,175 45,112 45,50" fill="#F7F4EF" stroke="#4A5D4E" stroke-width="4"/>
+                        <path d="M98 100 L114 116 L146 80" fill="none" stroke="#C86D51" stroke-width="6" stroke-linecap="round"/>
+                    </svg>
+                    <div class="visual-caption">Етап 5. Протокол під час атаки та онлайн-урок</div>
+                </div>
+            </div>
+
+            <div class="content-pane">
+                <div>
+                    <span class="stage-badge">Етап 5 з 6 • Кіберінцидент та безпечний віртуальний клас</span>
+                    <h2>Як діяти під час кіберінциденту та захистити онлайн-урок?</h2>
+
+                    <p class="theory-text">
+                        Якщо о 10.15 працівник відкрив архів «Зміни до тарифікації» і комп’ютер заблоковано вірусом-шифрувальником, паніка в чатах («Швидше видаляйте всі файли!») лише знищує докази атаки.
+                    </p>
+                    <div class="callout-box">
+                        <strong>Командний протокол</strong> — НЕГАЙНО висмикніть інтернет-кабель і вимкніть Wi-Fi (але не вимикайте ПК з розетки!), зі смартфона змініть паролі й заблокуйте КЕП, не платіть викуп (у 95% файли не повертають). На онлайн-уроках вмикайте кімнату очікування і забороняйте демонстрацію екрана без дозволу.
+                    </div>
+
+                    <div class="q-block">
+                        <div class="q-title">1. На робочому ПК з’явилося повідомлення про шифрування файлів після відкриття вкладення. Які перші технічні дії є правильними?</div>
+                        <label class="option-label"><input type="radio" name="s5q1" value="1"> Фізично висмикнути інтернет-кабель і вимкнути Wi-Fi (не вимикаючи ПК з розетки) та змінити паролі зі смартфона</label>
+                        <label class="option-label"><input type="radio" name="s5q1" value="0"> Переслати вірусний лист колегам із питанням «Подивись, у тебе теж таке відкривається?»</label>
+                        <label class="option-label"><input type="radio" name="s5q1" value="0"> Самостійно видалити всі зашифровані файли і заплатити викуп</label>
+                    </div>
+
+                    <div class="q-block">
+                        <div class="q-title">2. Які 4 правила формують безпечний віртуальний клас під час проведення онлайн-уроку?</div>
+                        <label class="option-label"><input type="radio" name="s5q2" value="0"> Публікація лінка на урок у відкритих соцмережах та вільний вхід без авторизації</label>
+                        <label class="option-label"><input type="radio" name="s5q2" value="1"> Кімната очікування, заборона демонстрації екрана учнями без дозволу, закритий лінк і відсутність стікерів із паролями у кадрі камери</label>
+                        <label class="option-label"><input type="radio" name="s5q2" value="0"> Вимкнення антивірусу на час відеозв’язку</label>
+                    </div>
+
+                    <div class="action-row">
+                        <button type="button" class="btn" onclick="checkStage(5)">Перевірити</button>
+                        <span class="status-msg" id="msg5"></span>
+                    </div>
+
+                    <details class="hint-box">
+                        <summary>Підказка — де розібратися?</summary>
+                        <p>Фізичне від’єднання інтернет-кабелю та Wi-Fi зупиняє поширення вірусу мережею закладу, а збереження живлення ПК дозволяє фахівцям вилучити сліди з оперативної пам’яті.</p>
+                    </details>
+
+                    <div class="flag-banner" id="flagBox5">
+                        <span>Ваш прапорець: <span class="flag-code">FLAG{INCIDENT_SHIELD}</span></span>
+                        <span>Етап пройдено!</span>
+                    </div>
+                </div>
+
+                <div class="nav-footer">
+                    <button type="button" class="btn btn-soft" onclick="showStage(4)">← Назад</button>
+                    <button type="button" class="btn btn-terracotta" onclick="goNext(5)">До фінального етапу 6 →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- СТОРІНКА 6 -->
+        <div class="quest-page" id="page6">
+            <div class="visual-pane">
+                <div class="visual-card">
+                    <svg viewBox="0 0 240 200" width="100%" height="180">
+                        <rect x="30" y="140" width="180" height="22" rx="6" fill="#4A5D4E"/>
+                        <rect x="48" y="112" width="144" height="22" rx="6" fill="#5D7261"/>
+                        <rect x="66" y="84" width="108" height="22" rx="6" fill="#C86D51"/>
+                        <rect x="84" y="56" width="72" height="22" rx="6" fill="#D99B52"/>
+                        <circle cx="120" cy="30" r="16" fill="#4A5D4E"/>
+                    </svg>
+                    <div class="visual-caption">Етап 6. Архітектура кіберстійкості та 5 правил</div>
+                </div>
+            </div>
+
+            <div class="content-pane">
+                <div>
+                    <span class="stage-badge">Етап 6 з 6 • Фінал квесту та генерація PDF-паспорта</span>
+                    <h2>Архітектура кіберстійкості та ваші 5 правил безпеки</h2>
+
+                    <p class="theory-text">
+                        Кібергігієна — це цілісна архітектура з 5 рівнів (Базова ідентичність із менеджером паролів та 2FA, Комунікація, Документообіг, Спільна робота та Особистість освітянина), де ослаблення одного шару ставить під загрозу весь заклад.
+                    </p>
+                    <div class="callout-box">
+                        <strong>Фінальний крок</strong> — дайте відповідь на 2 питання, сформуйте свої <strong>5 правил безпечного обміну файлами та спільними документами</strong> (скористайтеся кнопкою автозаповнення зразком) і збережіть PDF-паспорт.
+                    </div>
+
+                    <div class="q-block">
+                        <div class="q-title">1. Що лежить в основі (першому рівні) «Архітектури кіберстійкості сучасного освітянина»?</div>
+                        <label class="option-label"><input type="radio" name="s6q1" value="1"> Базова ідентичність — менеджер паролів та обов’язкова двофакторна автентифікація (2FA) для робочої пошти</label>
+                        <label class="option-label"><input type="radio" name="s6q1" value="0"> Запис пароля на паперовому стікері на моніторі</label>
+                        <label class="option-label"><input type="radio" name="s6q1" value="0"> Використання одного простого пароля для всіх сайтів</label>
+                    </div>
+
+                    <div class="q-block">
+                        <div class="q-title">2. Які ресурси та інструменти рекомендовані освітянам для поглиблення кіберграмотності та перевірки лінків?</div>
+                        <label class="option-label"><input type="radio" name="s6q2" value="1"> Освітні серіали «Дія.Освіта», курси CRDF Global та сканер VirusTotal (розширення VT4Browsers)</label>
+                        <label class="option-label"><input type="radio" name="s6q2" value="0"> Неофіційні чати з піратськими програмами</label>
+                        <label class="option-label"><input type="radio" name="s6q2" value="0"> Анонімні розсилки з архівами .exe</label>
+                    </div>
+
+                    <div class="action-row">
+                        <button type="button" class="btn" onclick="checkStage(6)">Перевірити</button>
+                        <span class="status-msg" id="msg6"></span>
+                    </div>
+
+                    <div class="flag-banner" id="flagBox6">
+                        <span>Ваш прапорець: <span class="flag-code">FLAG{CYBER_ARCHITECT}</span></span>
+                        <span>Квест завершено!</span>
+                    </div>
+
+                    <div class="rules-builder">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+                            <strong style="font-size: 14px; color: var(--accent-olive);">Мої 5 правил безпечного обміну файлами та спільними документами</strong>
+                            <button type="button" class="btn btn-amber" style="padding: 7px 14px; font-size: 12.5px;" onclick="fillSampleRules()">Автозаповнення зразком</button>
+                        </div>
+
+                        <div class="rule-item">
+                            <label>1. Правило 10 секунд для пошти та перевірки вкладень</label>
+                            <textarea id="rule1" placeholder="Опишіть правило перевірки домену та сканування вкладень..."></textarea>
+                        </div>
+                        <div class="rule-item">
+                            <label>2. Адресний доступ до персональних даних у хмарі</label>
+                            <textarea id="rule2" placeholder="Опишіть правило надання доступу до таблиць з даними учнів..."></textarea>
+                        </div>
+                        <div class="rule-item">
+                            <label>3. Захист спільної таблиці</label>
+                            <textarea id="rule3" placeholder="Опишіть захист діапазонів та використання Історії версій..."></textarea>
+                        </div>
+                        <div class="rule-item">
+                            <label>4. Гігієна спільного комп’ютера</label>
+                            <textarea id="rule4" placeholder="Опишіть роботу в режимі Інкогніто (Ctrl + Shift + N)..."></textarea>
+                        </div>
+                        <div class="rule-item">
+                            <label>5. Особиста недоторканність КЕП</label>
+                            <textarea id="rule5" placeholder="Опишіть використання Дія.Підпису та порталу czo.gov.ua..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nav-footer">
+                    <button type="button" class="btn btn-soft" onclick="showStage(5)">← Назад</button>
+                    <button type="button" class="btn btn-terracotta" onclick="createPassport()">Сформувати PDF-паспорт →</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ФІНАЛЬНИЙ ПАСПОРТ ДЛЯ GOOGLE КЛАСУ -->
+    <div id="passportSection">
+        <div class="passport-header">
+            <div>
+                <h2 style="color: #FFFFFF; margin-bottom: 4px;">ПАСПОРТ КВЕСТУ-ПРАКТИКУМУ (ТЕМА 10)</h2>
+                <p style="font-size: 13.5px; opacity: 0.92;">Модуль 4. Кібергігієна в комунікації, документообігу та спільній роботі</p>
+            </div>
+            <div style="background: #FFFFFF; color: var(--accent-olive); padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 15px;" id="finalScoreText">
+                Результат — 12 з 12 балів
+            </div>
+        </div>
+
+        <div id="passportBody" style="font-size: 14.5px; line-height: 1.65;"></div>
+
+        <div class="no-print" style="background: var(--bg-soft); padding: 15px 18px; border-radius: 10px; margin: 18px 0; border-left: 4px solid var(--accent-amber);">
+            <p style="font-weight: 700; margin-bottom: 4px;">Здача роботи у Google Клас</p>
+            <p style="font-size: 14px;">Натисніть кнопку <strong>«Зберегти PDF-паспорт (Друк)»</strong> або зробіть <strong>скріншот цієї картки</strong> та прикріпіть до завдання в Google Класі.</p>
+        </div>
+
+        <div class="no-print" style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="button" class="btn" onclick="window.print()">Зберегти PDF-паспорт (Друк)</button>
+            <button type="button" class="btn btn-terracotta" onclick="sendEmail()">Надіслати на пошту (ls.shevchenko@vspu.edu.ua)</button>
+            <button type="button" class="btn btn-soft" onclick="copyText()">Скопіювати текст звіту</button>
+        </div>
+    </div>
+
+<script>
+    var stageState = { 1: false, 2: false, 3: false, 4: false, 5: false, 6: false };
+    var flagsList = {
+        1: "FLAG{VIRUSTOTAL_10S}",
+        2: "FLAG{CLOUD_PRIVACY}",
+        3: "FLAG{INCOGNITO_SAFE}",
+        4: "FLAG{DIIA_SIGNATURE}",
+        5: "FLAG{INCIDENT_SHIELD}",
+        6: "FLAG{CYBER_ARCHITECT}"
+    };
+
+    function showStage(num) {
+        var pages = document.querySelectorAll(".quest-page");
+        var pills = document.querySelectorAll(".stage-pill");
+        for (var i = 0; i < pages.length; i++) {
+            pages[i].classList.remove("active");
+            pills[i].classList.remove("active");
+        }
+        document.getElementById("page" + num).classList.add("active");
+        document.getElementById("pill" + num).classList.add("active");
+        window.scrollTo(0, 0);
+    }
+
+    function checkStage(num) {
+        if (num === 1) {
+            var uName = document.getElementById("userName").value.trim();
+            var uSchool = document.getElementById("userSchool").value.trim();
+            var uEmail = document.getElementById("userEmail").value.trim();
+            if (!uName || !uSchool || !uEmail) {
+                alert("Будь ласка, заповніть ПІБ, заклад освіти та пошту у верхніх полях!");
+                return false;
+            }
+        }
+
+        var q1 = document.querySelector('input[name="s' + num + 'q1"]:checked');
+        var q2 = document.querySelector('input[name="s' + num + 'q2"]:checked');
+        var msg = document.getElementById("msg" + num);
+
+        if (!q1 || !q2) {
+            msg.style.color = "#C86D51";
+            msg.innerText = "Оберіть відповіді на обидва запитання!";
+            return false;
+        }
+
+        if (q1.value === "1" && q2.value === "1") {
+            stageState[num] = true;
+            msg.style.color = "#255834";
+            msg.innerText = "Правильно! Етап успішно пройдено.";
+            document.getElementById("flagBox" + num).style.display = "flex";
+            document.getElementById("pill" + num).classList.add("done");
+            return true;
+        } else {
+            msg.style.color = "#C86D51";
+            msg.innerText = "Є помилка. Перегляньте підказку і спробуйте ще раз!";
+            return false;
+        }
+    }
+
+    function goNext(num) {
+        if (!stageState[num]) {
+            var passed = checkStage(num);
+            if (!passed) return;
+        }
+        showStage(num + 1);
+    }
+
+    function fillSampleRules() {
+        document.getElementById("rule1").value = "Правило 10 секунд для пошти — завжди перевіряю домени відправника (.gov.ua / .edu.ua), не відкриваю запаролені архіви з публічних скриньок та сканую підозрілі вкладення через virustotal.com.";
+        document.getElementById("rule2").value = "Адресний доступ до даних — жодних публічних посилань «Усі, хто має посилання» для таблиць із персональними даними учнів; доступ надаю лише на конкретні корпоративні email-адреси.";
+        document.getElementById("rule3").value = "Захищена спільна таблиця — блокую шапки таблиць і формули через «Захистити діапазон», забороняю копіювання чутливих списків та відновлюю стерті дані через «Історію версій».";
+        document.getElementById("rule4").value = "Гігієна спільного комп’ютера — на чужому ПК у вчительській чи аудиторії працюю лише в режимі Інкогніто (Ctrl + Shift + N) та контролюю активні сесії зі смартфона.";
+        document.getElementById("rule5").value = "Особиста недоторканність КЕП — не передаю флешки з ключами і паролями колегам, переходжу на біометричний Дія.Підпис та послідовне підписання документів на порталі czo.gov.ua.";
+    }
+
+    function createPassport() {
+        if (!stageState[6]) {
+            var passed = checkStage(6);
+            if (!passed) return;
+        }
+
+        for (var i = 1; i <= 5; i++) {
+            if (!document.getElementById("rule" + i).value.trim()) {
+                alert("Будь ласка, заповніть Правило №" + i + " або натисніть кнопку «Автозаповнення зразком»!");
+                return;
+            }
+        }
+
+        var name = document.getElementById("userName").value.trim() || "Слухач курсу";
+        var school = document.getElementById("userSchool").value.trim() || "Заклад освіти";
+        var email = document.getElementById("userEmail").value.trim() || "Не вказано";
+
+        var doneCount = 0;
+        var chipsHtml = "";
+        for (var k = 1; k <= 6; k++) {
+            if (stageState[k]) {
+                doneCount++;
+                chipsHtml += '<span class="flag-chip">' + flagsList[k] + '</span>';
+            }
+        }
+
+        document.getElementById("finalScoreText").innerText = "Результат — " + (doneCount * 2) + " з 12 балів (" + doneCount + "/6 етапів)";
+
+        var bodyHtml =
+            "<p><strong>ПІБ педагога</strong> — " + name + "</p>" +
+            "<p><strong>Заклад освіти та посада</strong> — " + school + "</p>" +
+            "<p><strong>Електронна пошта</strong> — " + email + "</p>" +
+            "<p style='margin-top:10px;'><strong>Зібрані прапорці етапів квесту</strong></p>" +
+            "<div class='flags-grid'>" + chipsHtml + "</div>" +
+            "<h3 style='color:#4A5D4E; margin:14px 0 8px;'>Мої 5 правил безпечного обміну файлами та спільними документами</h3>" +
+            "<ol style='padding-left:20px;'>" +
+            "<li style='margin-bottom:6px;'>" + document.getElementById("rule1").value + "</li>" +
+            "<li style='margin-bottom:6px;'>" + document.getElementById("rule2").value + "</li>" +
+            "<li style='margin-bottom:6px;'>" + document.getElementById("rule3").value + "</li>" +
+            "<li style='margin-bottom:6px;'>" + document.getElementById("rule4").value + "</li>" +
+            "<li style='margin-bottom:6px;'>" + document.getElementById("rule5").value + "</li>" +
+            "</ol>" +
+            "<p style='margin-top:14px; font-weight:700; color:#4A5D4E;'>Зробіть скріншот цього паспорта або збережіть у PDF та прикріпіть до завдання в Google Класі!</p>";
+
+        document.getElementById("passportBody").innerHTML = bodyHtml;
+        document.getElementById("passportSection").style.display = "block";
+        document.getElementById("passportSection").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function getSummaryText() {
+        var name = document.getElementById("userName").value.trim();
+        var school = document.getElementById("userSchool").value.trim();
+        var email = document.getElementById("userEmail").value.trim();
+        return "ПАСПОРТ КВЕСТУ ТЕМА 10 (КІБЕРГІГІЄНА)\n" +
+               "ПІБ — " + name + "\nЗаклад — " + school + "\nEmail — " + email + "\n\n" +
+               "МОЇ 5 ПРАВИЛ БЕЗПЕКИ:\n" +
+               "1. " + document.getElementById("rule1").value + "\n" +
+               "2. " + document.getElementById("rule2").value + "\n" +
+               "3. " + document.getElementById("rule3").value + "\n" +
+               "4. " + document.getElementById("rule4").value + "\n" +
+               "5. " + document.getElementById("rule5").value;
+    }
+
+    function sendEmail() {
+        var name = document.getElementById("userName").value.trim() || "Слухач";
+        var subj = encodeURIComponent("Квест Тема 10 — " + name);
+        var body = encodeURIComponent(getSummaryText());
+        window.location.href = "mailto:ls.shevchenko@vspu.edu.ua?subject=" + subj + "&body=" + body;
+    }
+
+    function copyText() {
+        navigator.clipboard.writeText(getSummaryText()).then(function() {
+            alert("Текст паспорта скопійовано!");
+        });
+    }
+</script>
+
+</body>
+</html>
